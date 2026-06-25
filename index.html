@@ -530,6 +530,7 @@ function saveMeal(){
 }
 
 function deleteMeal(id){
+  if(!confirm('Remove this meal?'))return;
   var day=getDayData(currentDateStr);
   day.meals=day.meals.filter(function(m){return m.id!==id;});
   saveLocal();syncDay(currentDateStr);renderDiet();
@@ -724,6 +725,7 @@ function saveWeight(){
   saveLocal();syncWeights();closeModal('weight-modal');renderProgress();
 }
 function deleteWeight(id){
+  if(!confirm('Remove this weigh-in?'))return;
   state.weights=state.weights.filter(function(x){return x.id!==id;});
   saveLocal();syncWeights();renderProgress();
 }
