@@ -115,6 +115,13 @@ h1 em{color:var(--green);font-style:normal;}
 .water-card{background:var(--bg2);border:1px solid var(--bg4);border-radius:var(--radius);padding:18px;margin-bottom:16px;}
 .water-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
 .water-glasses{display:flex;gap:8px;flex-wrap:wrap;}
+.water-custom-row{display:flex;gap:8px;margin-top:12px;}
+.water-custom-input{flex:1;background:var(--bg3);border:1px solid var(--bg4);border-radius:8px;color:var(--text);font-size:13px;padding:8px 12px;outline:none;}
+.water-custom-input:focus{border-color:var(--teal,#3aa89b);}
+.water-custom-btn{background:var(--bg3);border:1px solid var(--bg4);color:var(--teal2,#3aa89b);font-size:12px;font-weight:600;padding:8px 16px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:all .15s;}
+.water-custom-btn:hover{border-color:var(--teal,#3aa89b);}
+.quick-cal-card{background:var(--bg2);border:1px solid var(--bg4);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+.quick-cal-row{display:flex;gap:8px;}
 .water-glass{font-size:24px;cursor:pointer;transition:all .2s;filter:grayscale(1);opacity:.3;}
 .water-glass.filled{filter:none;opacity:1;}
 .water-glass:hover{transform:scale(1.15);}
@@ -201,6 +208,18 @@ h1 em{color:var(--green);font-style:normal;}
 .modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:18px;}
 .modal-title span{color:var(--green);}
 .form-group{margin-bottom:13px;}
+
+/* QUICK ADD */
+.quick-add-row{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:none;}
+.quick-add-row::-webkit-scrollbar{display:none;}
+.quick-chip{flex-shrink:0;display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--bg4);
+  border-radius:20px;padding:8px 14px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.quick-chip:hover{border-color:var(--teal,#3aa89b);background:var(--bg4);}
+.quick-chip:active{transform:scale(.96);}
+.quick-chip-star{font-size:13px;color:var(--text3);cursor:pointer;line-height:1;}
+.quick-chip-star.filled{color:#ffcc4d;}
+.quick-chip-name{font-size:12.5px;color:var(--text);font-weight:500;}
+.quick-chip-cal{font-size:11px;color:var(--text2);background:var(--bg4);padding:2px 7px;border-radius:10px;}
 .form-label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:5px;font-weight:500;}
 .form-input,.form-select,.form-textarea{width:100%;background:var(--bg3);border:1px solid var(--bg4);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 13px;outline:none;transition:border-color .2s;}
 .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--bg5);}
@@ -271,6 +290,11 @@ h1 em{color:var(--green);font-style:normal;}
     <p class="modal-title">Log <span id="meal-modal-type">Meal</span></p>
     <input type="hidden" id="meal-edit-id"/>
     <input type="hidden" id="meal-type-hidden"/>
+    <div class="form-group"><label class="form-label">Choose From Your Food List</label>
+      <select class="form-select" id="meal-preset-select" onchange="applyMealPreset(this.value)">
+        <option value="">— Or type a custom entry below —</option>
+      </select>
+    </div>
     <div class="form-group"><label class="form-label">Food / Meal Name</label><input class="form-input" id="meal-name" type="text" placeholder="e.g. Grilled chicken breast, Rice..."/></div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Calories (kcal)</label><input class="form-input" id="meal-cal" type="number" inputmode="decimal" placeholder="e.g. 450"/></div>
@@ -298,22 +322,20 @@ h1 em{color:var(--green);font-style:normal;}
   <div class="modal">
     <p class="modal-title">Log <span style="color:var(--blue2);">Workout</span></p>
     <input type="hidden" id="gym-edit-id"/>
-    <div class="form-group">
-      <label class="form-label">Muscle Groups Trained</label>
-      <div class="muscle-picker" id="muscle-picker">
-        <button class="muscle-pick-btn" onclick="toggleMuscle(this,'Chest')">Chest</button>
-        <button class="muscle-pick-btn" onclick="toggleMuscle(this,'Back')">Back</button>
-        <button class="muscle-pick-btn" onclick="toggleMuscle(this,'Legs')">Legs</button>
-        <button class="muscle-pick-btn" onclick="toggleMuscle(this,'Shoulders')">Shoulders</button>
-        <button class="muscle-pick-btn" onclick="toggleMuscle(this,'Arms')">Arms</button>
-        <button class="muscle-pick-btn" onclick="toggleMuscle(this,'Core')">Core</button>
-        <button class="muscle-pick-btn" onclick="toggleMuscle(this,'Cardio')">Cardio</button>
-        <button class="muscle-pick-btn" onclick="toggleMuscle(this,'Full Body')">Full Body</button>
-      </div>
-    </div>
-    <div class="form-group"><label class="form-label">Workout Notes</label><textarea class="form-textarea" id="gym-notes" placeholder="e.g. Bench 3x10 @ 80kg&#10;Incline DB 3x12 @ 22.5kg&#10;Cable fly 3x15..."></textarea></div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Calories Burned (kcal)</label><input class="form-input" id="gym-cal-burned" type="number" inputmode="decimal" placeholder="e.g. 420"/></div>
+      <div class="form-group">
+        <label class="form-label">Workout Type</label>
+        <select class="form-select" id="workout-preset-select">
+          <option value="">— Select —</option>
+          <option value="legs">🦵 Leg Day</option>
+          <option value="upper">💪 Upper Body — Chest, Shoulders &amp; Triceps</option>
+          <option value="back">🔙 Back &amp; Biceps</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Calories Burned (Apple Watch)</label><input class="form-input" id="gym-cal-burned" type="number" inputmode="decimal" placeholder="e.g. 420"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Workout Notes (optional)</label><textarea class="form-textarea" id="gym-notes" placeholder="e.g. Bench 3x10 @ 80kg&#10;Incline DB 3x12 @ 22.5kg&#10;Cable fly 3x15..."></textarea></div>
+    <div class="form-row">
       <div class="form-group"><label class="form-label">Duration (mins)</label><input class="form-input" id="gym-duration" type="number" inputmode="decimal" placeholder="e.g. 60"/></div>
     </div>
     <div class="modal-actions">
@@ -355,7 +377,7 @@ h1 em{color:var(--green);font-style:normal;}
     <div class="form-group"><label class="form-label">Maintenance Calories (TDEE)</label><input class="form-input" id="set-maintenance" type="number" inputmode="decimal" placeholder="e.g. 2800"/></div>
     <div class="form-group"><label class="form-label">Daily Calorie Target (Deficit Goal)</label><input class="form-input" id="set-target" type="number" inputmode="decimal" placeholder="e.g. 2300"/></div>
     <div class="form-group"><label class="form-label">Daily Step Goal</label><input class="form-input" id="set-steps" type="number" inputmode="decimal" placeholder="e.g. 10000"/></div>
-    <div class="form-group"><label class="form-label">Daily Water Goal (glasses)</label><input class="form-input" id="set-water" type="number" inputmode="decimal" placeholder="e.g. 8"/></div>
+    <div class="form-group"><label class="form-label">Daily Water Goal (Liters)</label><input class="form-input" id="set-water" type="number" inputmode="decimal" step="0.5" placeholder="e.g. 4"/></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('settings-modal')">Cancel</button>
       <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
@@ -377,7 +399,7 @@ function saveLocal(){try{localStorage.setItem('ahmads-health',JSON.stringify(sta
 var state={
   days:{},      // keyed by date string YYYY-MM-DD
   weights:[],   // [{id,date,weight}]
-  settings:{maintenance:2800,target:2300,stepGoal:10000,waterGoal:8}
+  settings:{maintenance:2800,target:2300,stepGoal:10000,waterGoal:4}
 };
 
 var currentDateStr='';
@@ -430,6 +452,37 @@ var MEAL_TYPES=[
 ];
 var MEAL_ICONS={Breakfast:'🌅',Lunch:'☀️',Dinner:'🌙',Snack:'🍎','Pre-Workout':'💪','Post-Workout':'🥤'};
 
+// ==========================================================================
+// YOUR FOOD LIST — edit this array to match what you actually eat.
+// Each item: {name, cal, type}. type must match one of: Breakfast, Lunch,
+// Dinner, Snack, Pre-Workout, Post-Workout. This list populates the
+// "Choose From Your Food List" dropdown in the Add Meal modal.
+// ==========================================================================
+var MEAL_PRESETS=[
+  // {name:'Grilled chicken breast (200g)',cal:330,type:'Lunch'},
+  // {name:'Rice (1 cup cooked)',cal:205,type:'Lunch'},
+  // {name:'Protein shake',cal:150,type:'Post-Workout'},
+];
+
+function populateMealPresetDropdown(){
+  var sel=document.getElementById('meal-preset-select');
+  if(!sel)return;
+  sel.innerHTML='<option value="">— Or type a custom entry below —</option>';
+  MEAL_PRESETS.forEach(function(p,idx){
+    var opt=document.createElement('option');
+    opt.value=idx;opt.textContent=p.name+' ('+p.cal+' kcal)';
+    sel.appendChild(opt);
+  });
+}
+function applyMealPreset(idx){
+  if(idx==='')return;
+  var p=MEAL_PRESETS[parseInt(idx)];
+  if(!p)return;
+  document.getElementById('meal-name').value=p.name;
+  document.getElementById('meal-cal').value=p.cal;
+  if(p.type)document.getElementById('meal-type-select').value=p.type;
+}
+
 function renderDiet(){
   var sec=document.getElementById('sec-diet');
   var day=getDayData(currentDateStr);
@@ -457,15 +510,49 @@ function renderDiet(){
   html+='<div class="cal-status '+statusClass+'">'+statusText+'</div>';
   html+='</div>';
 
+  // quick calorie entry — paste a number straight from a Claude chat estimate
+  html+='<div class="quick-cal-card">';
+  html+='<div class="section-title" style="margin-bottom:10px;">📋 Quick Calorie Entry</div>';
+  html+='<div class="quick-cal-row">';
+  html+='<input type="number" inputmode="decimal" class="form-input" id="quick-cal-amt" placeholder="Calories (e.g. from Claude estimate)"/>';
+  html+='<select class="form-select" id="quick-cal-type" style="max-width:130px;">';
+  MEAL_TYPES.forEach(function(mt){html+='<option value="'+mt.k+'">'+mt.icon+' '+mt.k+'</option>';});
+  html+='</select>';
+  html+='</div>';
+  html+='<input type="text" class="form-input" id="quick-cal-label" placeholder="Optional label (e.g. Lunch from photo)" style="margin-top:8px;"/>';
+  html+='<button class="btn-primary" style="width:100%;margin-top:10px;" onclick="saveQuickCalorieEntry()">+ Add to Today</button>';
+  html+='</div>';
+
   // water card
-  var waterGoal=s.waterGoal||8;
+  var waterGoal=s.waterGoal||4;
   html+='<div class="water-card">';
-  html+='<div class="water-header"><span class="section-title">💧 Water Intake</span><span class="water-count">'+day.water+' / '+waterGoal+' glasses</span></div>';
+  html+='<div class="water-header"><span class="section-title">💧 Water Intake</span><span class="water-count">'+(day.water||0)+'L / '+waterGoal+'L</span></div>';
   html+='<div class="water-glasses">';
-  for(var w=1;w<=waterGoal;w++){
-    html+='<span class="water-glass'+(w<=day.water?' filled':'')+'" onclick="toggleWater('+w+')">💧</span>';
+  for(var w=1;w<=Math.ceil(waterGoal);w++){
+    html+='<span class="water-glass'+(w<=day.water?' filled':'')+'" onclick="toggleWater('+w+')" title="1L bottle">🍶</span>';
   }
-  html+='</div></div>';
+  html+='</div>';
+  html+='<div class="water-custom-row">';
+  html+='<input type="number" step="0.1" inputmode="decimal" class="water-custom-input" id="water-custom-amt" placeholder="e.g. 0.5"/>';
+  html+='<button class="water-custom-btn" onclick="addCustomWater()">+ Add Liters</button>';
+  html+='</div>';
+  html+='</div>';
+
+  // QUICK ADD — frequent/favourite meals, one-tap logging
+  var quick=getQuickAddMeals();
+  if(quick.length){
+    html+='<div class="section-header"><span class="section-title">⚡ Quick Add</span></div>';
+    html+='<div class="quick-add-row">';
+    quick.forEach(function(q){
+      var isFav=(state.favMeals||[]).some(function(f){return f.name===q.name&&f.cal===q.cal;});
+      html+='<div class="quick-chip" onclick="quickAddMeal(\''+q.name.replace(/'/g,"\\'")+'\','+q.cal+',\''+q.type+'\')">';
+      html+='<span class="quick-chip-star'+(isFav?' filled':'')+'" onclick="event.stopPropagation();toggleFavMeal(\''+q.name.replace(/'/g,"\\'")+'\','+q.cal+',\''+q.type+'\')">'+(isFav?'★':'☆')+'</span>';
+      html+='<span class="quick-chip-name">'+esc(q.name)+'</span>';
+      html+='<span class="quick-chip-cal">'+q.cal+'</span>';
+      html+='</div>';
+    });
+    html+='</div>';
+  }
 
   // meals
   html+='<div class="section-header"><span class="section-title">🍽️ Meals</span><button class="section-btn" onclick="openMealModal(null,\'Breakfast\')">+ Add Meal</button></div>';
@@ -499,10 +586,74 @@ function toggleWater(n){
   day.water=day.water===n?n-1:n;
   saveLocal();syncDay(currentDateStr);renderDiet();
 }
+function addCustomWater(){
+  var inp=document.getElementById('water-custom-amt');
+  var amt=parseFloat(inp.value);
+  if(!amt||amt<=0)return;
+  var day=getDayData(currentDateStr);
+  day.water=Math.round(((day.water||0)+amt)*10)/10;
+  inp.value='';
+  saveLocal();syncDay(currentDateStr);renderDiet();
+}
+function saveQuickCalorieEntry(){
+  var amt=parseInt(document.getElementById('quick-cal-amt').value);
+  if(!amt||amt<=0){document.getElementById('quick-cal-amt').focus();return;}
+  var type=document.getElementById('quick-cal-type').value;
+  var label=document.getElementById('quick-cal-label').value.trim();
+  var day=getDayData(currentDateStr);
+  day.meals.push({id:uid(),name:label||'Quick Entry',cal:amt,type:type,notes:''});
+  saveLocal();syncDay(currentDateStr);renderDiet();
+}
+
+// ---- QUICK ADD MEALS ----
+function getQuickAddMeals(){
+  if(!state.favMeals)state.favMeals=[];
+  var counts={};
+  Object.keys(state.days).forEach(function(ds){
+    var day=state.days[ds];
+    if(!day||!day.meals)return;
+    day.meals.forEach(function(m){
+      var key=m.name.toLowerCase()+'|'+m.cal;
+      if(!counts[key])counts[key]={name:m.name,cal:m.cal,type:m.type,count:0,lastDate:ds};
+      counts[key].count++;
+      if(ds>counts[key].lastDate)counts[key].lastDate=ds;
+    });
+  });
+  var list=Object.values(counts);
+  var favs=state.favMeals||[];
+  list.forEach(function(item){
+    item.isFav=favs.some(function(f){return f.name===item.name&&f.cal===item.cal;});
+  });
+  list.sort(function(a,b){
+    if(a.isFav!==b.isFav)return a.isFav?-1:1;
+    if(b.count!==a.count)return b.count-a.count;
+    return b.lastDate>a.lastDate?1:-1;
+  });
+  return list.slice(0,10);
+}
+function quickAddMeal(name,cal,type){
+  var day=getDayData(currentDateStr);
+  day.meals.push({id:uid(),name:name,cal:cal,type:type,notes:''});
+  saveLocal();syncDay(currentDateStr);renderDiet();
+  var t=document.createElement('div');
+  t.textContent='✓ '+name+' logged';
+  t.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--accent, #4caa6e);color:#fff;font-size:13px;font-weight:600;padding:10px 22px;border-radius:30px;z-index:999;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.4);';
+  document.body.appendChild(t);
+  setTimeout(function(){t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(function(){t.remove();},300);},1500);
+}
+function toggleFavMeal(name,cal,type){
+  if(!state.favMeals)state.favMeals=[];
+  var idx=state.favMeals.findIndex(function(f){return f.name===name&&f.cal===cal;});
+  if(idx>-1)state.favMeals.splice(idx,1);
+  else state.favMeals.push({name:name,cal:cal,type:type});
+  saveLocal();renderDiet();
+}
 
 function openMealModal(id,type){
   document.getElementById('meal-edit-id').value=id||'';
   document.getElementById('meal-type-hidden').value=type||'Breakfast';
+  populateMealPresetDropdown();
+  document.getElementById('meal-preset-select').value='';
   if(id){
     var day=getDayData(currentDateStr);
     var m=day.meals.find(function(x){return x.id===id;});
@@ -556,6 +707,7 @@ function renderGym(){
   if(!day.workout&&!day.isRest){
     html+='<div style="display:flex;gap:6px;">';
     html+='<button class="section-btn blue" onclick="openGymModal()">+ Log Workout</button>';
+    if(getLastWorkout())html+='<button class="section-btn" onclick="repeatLastWorkout()">🔁 Repeat Last</button>';
     html+='<button class="section-btn" onclick="markRestDay()">😴 Rest Day</button>';
     html+='</div>';
   }
@@ -581,11 +733,23 @@ function renderGym(){
   sec.innerHTML=html;
 }
 
-function toggleMuscle(btn,muscle){
-  btn.classList.toggle('sel');
+// ---- WORKOUT PRESETS ----
+var WORKOUT_PRESETS={
+  legs:{label:'Leg Day',muscles:['Legs']},
+  upper:{label:'Upper Body — Chest, Shoulders & Triceps',muscles:['Chest','Shoulders','Arms']},
+  back:{label:'Back & Biceps',muscles:['Back','Arms']}
+};
+function musclesToPresetKey(muscles){
+  if(!muscles||!muscles.length)return'';
+  for(var k in WORKOUT_PRESETS){
+    var pm=WORKOUT_PRESETS[k].muscles;
+    if(pm.length===muscles.length&&pm.every(function(m){return muscles.indexOf(m)>-1;}))return k;
+  }
+  return'';
 }
 function getSelectedMuscles(){
-  return Array.from(document.querySelectorAll('#muscle-picker .muscle-pick-btn.sel')).map(function(b){return b.textContent;});
+  var key=document.getElementById('workout-preset-select').value;
+  return key&&WORKOUT_PRESETS[key]?WORKOUT_PRESETS[key].muscles:[];
 }
 
 function openGymModal(){
@@ -595,10 +759,7 @@ function openGymModal(){
   document.getElementById('gym-notes').value=w?w.notes||'':'';
   document.getElementById('gym-cal-burned').value=w?w.calBurned||'':'';
   document.getElementById('gym-duration').value=w?w.duration||'':'';
-  // reset muscle picker
-  document.querySelectorAll('#muscle-picker .muscle-pick-btn').forEach(function(b){
-    b.classList.toggle('sel',w&&w.muscles&&w.muscles.indexOf(b.textContent)>-1);
-  });
+  document.getElementById('workout-preset-select').value=w?musclesToPresetKey(w.muscles):'';
   document.getElementById('gym-modal').classList.add('open');
 }
 function closeGymModal(){document.getElementById('gym-modal').classList.remove('open');}
@@ -631,6 +792,22 @@ function unmarkRestDay(){
   var day=getDayData(currentDateStr);
   day.isRest=false;
   saveLocal();syncDay(currentDateStr);renderGym();
+}
+
+// ---- REPEAT LAST WORKOUT ----
+function getLastWorkout(){
+  var dates=Object.keys(state.days).filter(function(d){return d!==currentDateStr&&state.days[d].workout;}).sort();
+  if(!dates.length)return null;
+  return state.days[dates[dates.length-1]].workout;
+}
+function repeatLastWorkout(){
+  var last=getLastWorkout();
+  if(!last)return;
+  openGymModal();
+  document.getElementById('gym-notes').value=last.notes||'';
+  document.getElementById('gym-cal-burned').value=last.calBurned||'';
+  document.getElementById('gym-duration').value=last.duration||'';
+  document.getElementById('workout-preset-select').value=musclesToPresetKey(last.muscles);
 }
 
 function openModal(id){document.getElementById(id).classList.add('open');}
@@ -789,7 +966,7 @@ function renderReport(){
   html+='<div class="report-row"><span class="report-row-label">🍽️ Avg Daily Calories</span><span class="report-row-val '+(avgCal&&avgCal<=state.settings.target?'good':avgCal>state.settings.target?'bad':'')+'">'+( avgCal||'—')+(avgCal?' kcal':'')+'</span></div>';
   html+='<div class="report-row"><span class="report-row-label">🔥 Total Cal Burned</span><span class="report-row-val">'+( calBurned||'—')+(calBurned?' kcal':'')+'</span></div>';
   html+='<div class="report-row"><span class="report-row-label">👟 Avg Daily Steps</span><span class="report-row-val '+(avgSteps>=state.settings.stepGoal?'good':'')+'">'+( avgSteps||'—')+'</span></div>';
-  html+='<div class="report-row"><span class="report-row-label">💧 Avg Water Intake</span><span class="report-row-val '+(avgWater>=state.settings.waterGoal?'good':'')+'">'+( avgWater||'—')+(avgWater?' glasses':'')+'</span></div>';
+  html+='<div class="report-row"><span class="report-row-label">💧 Avg Water Intake</span><span class="report-row-val '+(avgWater>=state.settings.waterGoal?'good':'')+'">'+( avgWater||'—')+(avgWater?'L':'')+'</span></div>';
   html+='</div>';
 
   sec.innerHTML=html;
@@ -808,7 +985,7 @@ function openSettings(){
   document.getElementById('set-maintenance').value=s.maintenance||2800;
   document.getElementById('set-target').value=s.target||2300;
   document.getElementById('set-steps').value=s.stepGoal||10000;
-  document.getElementById('set-water').value=s.waterGoal||8;
+  document.getElementById('set-water').value=s.waterGoal||4;
   openModal('settings-modal');
 }
 function saveSettings(){
@@ -816,7 +993,7 @@ function saveSettings(){
     maintenance:parseInt(document.getElementById('set-maintenance').value)||2800,
     target:parseInt(document.getElementById('set-target').value)||2300,
     stepGoal:parseInt(document.getElementById('set-steps').value)||10000,
-    waterGoal:parseInt(document.getElementById('set-water').value)||8
+    waterGoal:parseFloat(document.getElementById('set-water').value)||4
   };
   saveLocal();syncSettings();closeModal('settings-modal');renderCurrentTab();
 }
@@ -855,13 +1032,13 @@ async function loadAll(){
     // load meta
     metaRes.forEach(function(r){
       if(r.key==='weights')state.weights=safeJson(r.value,[]);
-      if(r.key==='settings')state.settings=Object.assign({maintenance:2800,target:2300,stepGoal:10000,waterGoal:8},safeJson(r.value,{}));
+      if(r.key==='settings')state.settings=Object.assign({maintenance:2800,target:2300,stepGoal:10000,waterGoal:4},safeJson(r.value,{}));
     });
     saveLocal();
     setSyncStatus('ok','Synced');
   }catch(e){
     setSyncStatus('err','Offline — local data');
-    try{var s=localStorage.getItem('ahmads-health');if(s){var saved=JSON.parse(s);state.days=saved.days||{};state.weights=saved.weights||[];state.settings=Object.assign({maintenance:2800,target:2300,stepGoal:10000,waterGoal:8},saved.settings||{});}}catch(ex){}
+    try{var s=localStorage.getItem('ahmads-health');if(s){var saved=JSON.parse(s);state.days=saved.days||{};state.weights=saved.weights||[];state.settings=Object.assign({maintenance:2800,target:2300,stepGoal:10000,waterGoal:4},saved.settings||{});}}catch(ex){}
   }
   renderCurrentTab();
 }
