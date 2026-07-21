@@ -488,8 +488,10 @@ function renderDiet(){
   var day=getDayData(currentDateStr);
   var s=state.settings;
   var consumed=day.meals.reduce(function(sum,m){return sum+m.cal;},0);
-  var remaining=s.target-consumed;
-  var pct=Math.min(100,Math.round(consumed/s.target*100));
+  var burned=(day.workout&&day.workout.calBurned)?day.workout.calBurned:0;
+  var effectiveTarget=s.target+burned;
+  var remaining=effectiveTarget-consumed;
+  var pct=Math.min(100,Math.round(consumed/effectiveTarget*100));
   var barClass=pct<80?'':'pct>=100?\'red\':\'amber\'';
   var actualBarClass=pct>=100?'red':pct>=85?'amber':'';
   var statusText=pct>=100?'⚠️ Over your daily target':'You\'re within your goal! '+remaining+' kcal remaining';
@@ -503,10 +505,10 @@ function renderDiet(){
   html+='<div class="cal-numbers">';
   html+='<div class="cal-num-box"><div class="cal-num consumed">'+consumed+'</div><div class="cal-num-lbl">Consumed</div></div>';
   html+='<div class="cal-num-box"><div class="cal-num remaining'+(remaining<0?' over':'')+'">'+Math.abs(remaining)+'</div><div class="cal-num-lbl">'+(remaining<0?'Over':'Remaining')+'</div></div>';
-  html+='<div class="cal-num-box"><div class="cal-num target">'+s.target+'</div><div class="cal-num-lbl">Target</div></div>';
+  html+='<div class="cal-num-box"><div class="cal-num target">'+effectiveTarget+'</div><div class="cal-num-lbl">Target'+(burned>0?' <span style="color:var(--green2);">(+'+burned+')</span>':'')+'</div></div>';
   html+='</div>';
   html+='<div class="cal-bar-wrap"><div class="cal-bar-track"><div class="cal-bar-fill '+actualBarClass+'" style="width:'+pct+'%"></div></div>';
-  html+='<div class="cal-bar-pct">'+pct+'% of daily target (Maintenance: '+s.maintenance+' kcal)</div></div>';
+  html+='<div class="cal-bar-pct">'+pct+'% of daily target (Base: '+s.target+' kcal'+(burned>0?' + '+burned+' burned at gym':'')+')</div></div>';
   html+='<div class="cal-status '+statusClass+'">'+statusText+'</div>';
   html+='</div>';
 
@@ -834,7 +836,7 @@ function renderProgress(){
   var avgCal=0;var calDays=0;
   days7.forEach(function(d){var day=state.days[d];if(day&&day.meals&&day.meals.length){avgCal+=day.meals.reduce(function(s,m){return s+m.cal;},0);calDays++;}});
   avgCal=calDays?Math.round(avgCal/calDays):0;
-  var goalHitDays=days7.filter(function(d){var day=state.days[d];if(!day||!day.meals||!day.meals.length)return false;var cal=day.meals.reduce(function(s,m){return s+m.cal;},0);return cal<=state.settings.target;}).length;
+  var goalHitDays=days7.filter(function(d){var day=state.days[d];if(!day||!day.meals||!day.meals.length)return false;var cal=day.meals.reduce(function(s,m){return s+m.cal;},0);var dayBurned=(day.workout&&day.workout.calBurned)?day.workout.calBurned:0;return cal<=(state.settings.target+dayBurned);}).length;
   var totalSteps=days7.reduce(function(s,d){return s+(state.days[d]?state.days[d].steps||0:0);},0);
 
   var html='';
@@ -857,7 +859,8 @@ function renderProgress(){
     var hasWorkout=day&&day.workout;
     var isRest=day&&day.isRest;
     var consumed=day&&day.meals?day.meals.reduce(function(s,m){return s+m.cal;},0):0;
-    var onTarget=consumed>0&&consumed<=state.settings.target;
+    var dayBurned=(hasWorkout&&day.workout.calBurned)?day.workout.calBurned:0;
+    var onTarget=consumed>0&&consumed<=(state.settings.target+dayBurned);
     var icon=hasWorkout?'🏋️':isRest?'😴':d<todayStr()?'—':'';
     html+='<div class="week-day">';
     html+='<div class="week-day-name">'+(isToday?'<b style="color:var(--green)">'+DAY_NAMES[dow]+'</b>':DAY_NAMES[dow])+'</div>';
@@ -936,8 +939,9 @@ function renderReport(){
     var day=state.days[d];
     if(day&&day.meals&&day.meals.length){
       var cal=day.meals.reduce(function(s,m){return s+m.cal;},0);
+      var dayBurned=(day.workout&&day.workout.calBurned)?day.workout.calBurned:0;
       totalCal+=cal;calDays++;
-      if(cal<=state.settings.target)goalHit++;
+      if(cal<=(state.settings.target+dayBurned))goalHit++;
     }
   });
   var avgCal=calDays?Math.round(totalCal/calDays):0;
